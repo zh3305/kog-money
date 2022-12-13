@@ -5,11 +5,11 @@ from io import BytesIO
 
 import numpy as np
 from PIL import Image
-from adb.client import Client as AdbClient
+# from adb.client import Client as AdbClient
 
-client = AdbClient(host="127.0.0.1", port=5037)
+# client = AdbClient(host="127.0.0.1", port=5037)
 
-device = client.devices()[0]
+# device = client.devices()[0]
 
 baseline = {}
 
@@ -77,15 +77,18 @@ def convert_cord(x,y):
 def tap_screen(x, y):
     """calculate real x, y according to device resolution."""
     real_x, real_y = convert_cord(x, y)
-    device.shell('input tap {} {}'.format(real_x, real_y))
+    # device.shell('input tap {} {}'.format(real_x, real_y))
+    os.system('adb -s 8MY0220C15002276  shell input tap {} {}'.format(real_x, real_y))
 
 
 def stop_game():
-    device.shell('am force-stop com.tencent.tmgp.sgame')  # 关闭游戏
+    # device.shell('am force-stop com.tencent.tmgp.sgame')  # 关闭游戏
+    os.system('adb -s 8MY0220C15002276  shell am force-stop com.tencent.tmgp.sgame')
 
 
 def start_game():
-    device.shell('monkey -p com.tencent.tmgp.sgame -c android.intent.category.LAUNCHER 1')  # 打开游戏
+    # device.shell('monkey -p com.tencent.tmgp.sgame -c android.intent.category.LAUNCHER 1')  # 打开游戏
+    os.system('adb -s 8MY0220C15002276  shell monkey -p com.tencent.tmgp.sgame -c android.intent.category.LAUNCHER 1')
 
     time.sleep(60)
 
@@ -122,7 +125,9 @@ def tap_by_name(name):
 
 
 def swipe(x, y, x1, y1, duration):
-    device.shell('input swipe {} {} {} {} {}'.format(x, y, x1, y1, duration))
+    # device.shell('input swipe {} {} {} {} {}'.format(x, y, x1, y1, duration))
+    os.system('adb -s 8MY0220C15002276  shell input swipe {} {} {} {} {}'.format(x, y, x1, y1, duration))
+
 
 
 def find_screen_size():
@@ -143,13 +148,22 @@ def pull_screenshot(resize=False, method=0, save_file=False):
     if save_file and os.path.exists(SCREEN_PATH):
         os.remove(SCREEN_PATH)
 
-    if method == 0:
-        result = device.screencap()
-        img = Image.open(BytesIO(result))
+    # if method == 0:
+    if False:
+        # result = device.screencap()
+        # 截屏口令
+        cmd_get = 'adb shell screencap -p /sdcard/screen_img.png'
+        # 发送图片口令
+        cmd_send = 'adb pull sdcard/screen_img.png ./screen.png'
+        # 截屏和发送操作
+        os.system(cmd_get)
+        os.system(cmd_send)
+        # img = Image.open(BytesIO(result))
+        img = Image.open('./screen.png')
 
-        if save_file:
-            with open(SCREEN_PATH, "wb") as fp:
-                fp.write(result)
+        # if save_file:
+        #     with open(SCREEN_PATH, "wb") as fp:
+        #         fp.write(result)
     else:
         os.system('adb shell screencap -p /sdcard/screen.png')
         os.system('adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
