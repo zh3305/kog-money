@@ -60,7 +60,7 @@ class RandomPlayPolicy(Policy):
         num = len(heros)
         if num == 0:
             logging.info("所有英雄已经刷完，退出游戏")
-            stop_game()
+            # stop_game()
             exit(0)
         i = random.randint(0, num - 1)
         hero = heros[i]
@@ -96,6 +96,7 @@ class RandomPlayPolicy(Policy):
 
         if self.state == 'pick_hero':
             hero = self._random_hero()
+            logging.debug('try to find hero {}'.format(hero))
             if not chose_hero(hero):
                 logging.debug('find hero {} failed, retry'.format(hero))
                 hero = self._random_hero()

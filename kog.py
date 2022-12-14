@@ -11,11 +11,13 @@ from util import save_crop, init
 repeat_times = 60
 
 # 日志输出
-logging.basicConfig(format='%(asctime)s %(message)s',
+logging.basicConfig(
+                    format='%(asctime)s %(thread)d %(threadName)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p',
-                    level=logging.INFO
+                    level=logging.DEBUG,
                     )
 
+logging.getLogger('PIL').setLevel(logging.WARNING) # 设置PIL模块的日志等级为WARNING
 
 def main():
     init()

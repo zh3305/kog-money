@@ -93,16 +93,16 @@ def tap_sleep(x, y):
 def choose_level1():
     time.sleep(1)
 
-    tap_sleep(513, 534)
+    tap_sleep(513, 534) #选择对战模式
 
-    tap_sleep(1090, 174)
+    tap_sleep(171, 371) #选择5v5
 
-    tap_sleep(200, 387)
+    tap_sleep(583, 360) #选择人机
 
-    for i in range(5):
-        swipe(200, 250, 210, 580, 300)
+    # for i in range(5):# 滑动
+    #     swipe(200, 250, 210, 580, 300)
 
-    tap_sleep(217, 95)
+    tap_sleep(1013, 566) #开始练习
 
 
 def thumb_up():
@@ -129,6 +129,8 @@ class ContinueMatchAction(ContinueAction):
         self.policy = get_policy()
 
     def execute(self):
+        time.sleep(5)#等待打扫战场
+        tap_screen(784, 269) #切换到奖励界面
         # 第一次点击，并统计时间
         if check_single_action('check_finished'):
             self.policy.set_finished()

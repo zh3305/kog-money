@@ -27,16 +27,21 @@ tap_cords = {
     'skip1': (1190, 12, 1260, 45),
     'exit': (1153, 43, 1264, 93,),
     'start_match': (630, 574, 822, 630),
-    'return_room': (461, 638, 612, 684),
-    'confirm': (572, 168, 709, 198),
-    'match_continue': (542, 635, 739, 690),
+    'return_room': (461, 638, 612, 664),
+    'confirm': (569, 128, 715, 165),
+    'match_continue': (608, 637, 670, 663),
+    # 'match_continue2': (598, 630, 684, 666),
     'recover': (710, 619, 757, 671),
-    'pick_hero': (1104, 655, 1267, 712),
-    'check_finished': (435, 442, 513, 459),
-    'confirm_hero': (1103, 658, 1266, 713),
-    'relax': (807, 457, 926, 508),
+    'pick_hero': (1111, 643, 1234, 678),#选择英雄
+    'check_finished': (394, 343, 450, 388),
+    'confirm_hero': (1111, 643, 1234, 678),#确认英雄选择
+    'relax': (801, 465, 940, 508),#强制休息
     'confirm1': (554, 635, 722, 693),
-    'confirm2': (556, 477, 723, 528)
+    'confirm2': (556, 477, 723, 528),
+    'confirm3': (554, 635, 722, 693),
+    '开始匹配': (695, 644, 826, 671),
+    '免费加速': (468, 492, 576, 520),
+    '最大化窗口': (250, 299, 276, 367),
     # 'expand_hero': (459, 483,494,602)
 }
 
@@ -56,7 +61,7 @@ swipe_cords = {
     'skill2':(1121, 397, 85, 100, 400),
 }
 
-threshold = 10
+threshold = 35 # 两张图片相似度阈值
 ACTIONS = tap_cords.keys()
 
 # 屏幕分辨率
@@ -78,17 +83,18 @@ def tap_screen(x, y):
     """calculate real x, y according to device resolution."""
     real_x, real_y = convert_cord(x, y)
     # device.shell('input tap {} {}'.format(real_x, real_y))
-    os.system('adb -s 8MY0220C15002276  shell input tap {} {}'.format(real_x, real_y))
+    logging.info(msg='tap screen: {}, {}'.format(real_x, real_y))
+    os.system('adb -s emulator-5554  shell input tap {} {}'.format(real_x, real_y))
 
 
 def stop_game():
     # device.shell('am force-stop com.tencent.tmgp.sgame')  # 关闭游戏
-    os.system('adb -s 8MY0220C15002276  shell am force-stop com.tencent.tmgp.sgame')
+    os.system('adb -s emulator-5554  shell am force-stop com.tencent.tmgp.sgame')
 
 
 def start_game():
     # device.shell('monkey -p com.tencent.tmgp.sgame -c android.intent.category.LAUNCHER 1')  # 打开游戏
-    os.system('adb -s 8MY0220C15002276  shell monkey -p com.tencent.tmgp.sgame -c android.intent.category.LAUNCHER 1')
+    os.system('adb -s emulator-5554  shell monkey -p com.tencent.tmgp.sgame -c android.intent.category.LAUNCHER 1')
 
     time.sleep(60)
 
@@ -126,7 +132,7 @@ def tap_by_name(name):
 
 def swipe(x, y, x1, y1, duration):
     # device.shell('input swipe {} {} {} {} {}'.format(x, y, x1, y1, duration))
-    os.system('adb -s 8MY0220C15002276  shell input swipe {} {} {} {} {}'.format(x, y, x1, y1, duration))
+    os.system('adb -s emulator-5554  shell input swipe {} {} {} {} {}'.format(x, y, x1, y1, duration))
 
 
 
@@ -145,8 +151,8 @@ def save_crop():
 
 
 def pull_screenshot(resize=False, method=0, save_file=False):
-    if save_file and os.path.exists(SCREEN_PATH):
-        os.remove(SCREEN_PATH)
+    # if save_file and os.path.exists(SCREEN_PATH):
+    #     os.remove(SCREEN_PATH)
 
     # if method == 0:
     if False:
@@ -165,8 +171,7 @@ def pull_screenshot(resize=False, method=0, save_file=False):
         #     with open(SCREEN_PATH, "wb") as fp:
         #         fp.write(result)
     else:
-        os.system('adb shell screencap -p /sdcard/screen.png')
-        os.system('adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
+        os.system('adb shell screencap -p /sdcard/screen.png &&  adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
         img = Image.open(SCREEN_PATH)
 
     if resize and img.size != (base_x, base_y):
@@ -188,8 +193,10 @@ def check_action():
 
     min_key = min(crop_frame, key=crop_frame.get)
     if crop_frame[min_key] < threshold:
-        logging.debug("ACTION: {}".format(min_key))
+        logging.debug("Find ACTION: {0} , value {1}".format(min_key,crop_frame[min_key] ))
         return min_key
+    else:
+        logging.debug("ACTION: {0} , value {1}".format(min_key,crop_frame[min_key] ))
 
     logging.debug("ACTION: no action")
 
