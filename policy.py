@@ -76,48 +76,49 @@ class RandomPlayPolicy(Policy):
             self.save_finished()
 
     def action(self):
-        action = check_action()
+        returnaction = check_action()
 
         # 不在对局中， 没有
-        if action not in ['recover', 'pick_hero', 'confirm_hero']:
+        if returnaction not in ['recover', 'pick_hero', 'confirm_hero']:
             time.sleep(1.5)
-            return action
+            return returnaction
 
         # 确认英雄后，识别到挑选英雄，则略过
-        if self.state == 'confirm_hero' and action == 'pick_hero':
+        if self.state == 'confirm_hero' and returnaction == 'pick_hero':
             time.sleep(1.5)
             return None
 
-        logging.debug("old state:{}, new state:{}".format(self.state, action))
-        self.state = action
+        logging.debug("old state:{}, new state:{}".format(self.state, returnaction))
+        self.state = returnaction
 
         if self.state == 'confirm_hero':
-            return action
+            return returnaction
 
         if self.state == 'pick_hero':
             hero = self._random_hero()
             logging.debug('try to find hero {}'.format(hero))
-            if not chose_hero(hero):
+            while not chose_hero(hero):
                 logging.debug('find hero {} failed, retry'.format(hero))
                 hero = self._random_hero()
-                chose_hero(hero, reverse=True)
-                logging.debug('try to find hero {}'.format(hero))
+                continue
+                # chose_hero(hero, reverse=True)
+                # logging.debug('try to find hero {}'.format(hero))
 
             self.current_hero = hero
             time.sleep(1)
-            return action
+            return returnaction
 
         r = random.random()
 
         if r < 0.5:
-            action = self._random_chose(tap_only_cords)
+            returnaction = self._random_chose(tap_only_cords)
         elif r < 0.7:
-            action = self._random_chose(swipe_cords)
+            returnaction = self._random_chose(swipe_cords)
         else:
-            action = self.DEFAULT_ACTION
+            returnaction = self.DEFAULT_ACTION
 
-        logging.debug("ACTION: {}".format(action))
-        return action
+        logging.debug("ACTION: {}".format(returnaction))
+        return returnaction
 
 
 DEFAULT_POLICY = RandomPlayPolicy()

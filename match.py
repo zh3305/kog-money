@@ -1,3 +1,4 @@
+import logging
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
@@ -84,27 +85,23 @@ def chose_hero(name, reverse=False):
     template = 'img/hero/{}.png'.format(name)
 
     # 检测最大化窗口
-    if not check_single_action('最大化窗口'):
+    if check_single_action('最大化窗口'):
+        logging.info('最大化窗口')
         tap_screen(266, 332)
     now = time.time()
     while True:
         pull_screenshot(save_file=True)
         top_left, bottom_right = match_template1(template, SCREEN_PATH)
-        print('top_left: {0} bottom_right:{1}'.format(top_left,bottom_right))
-        if top_left is not None:
-            break
-        # valid = valid_hero_location(top_left)
-        # if valid :
-        #     break
-
-        if time.time() - now > 10:
-            return False
-        swipe_hero(reverse=reverse)
-
-    pull_screenshot(save_file=True)
-    top_left, bottom_right = match_template1(template, SCREEN_PATH)
-    tap_center(top_left, bottom_right)
-    return True
+        # print('top_left: {0} bottom_right:{1}'.format(top_left,bottom_right))
+        if top_left is  None:
+            if time.time() - now > 6:
+                return False
+            if time.time() - now > 5:
+                reverse=not reverse
+            swipe_hero(reverse=reverse)
+        else:
+            tap_center(top_left, bottom_right)
+            return True
 
 
 def to_pinyin(name):
@@ -113,4 +110,4 @@ def to_pinyin(name):
 
 if __name__ == '__main__':
     # chose_hero('zhuangzhou')
-    chose_hero('laofuzi')
+    print(chose_hero('李莲芳'))

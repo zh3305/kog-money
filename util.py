@@ -12,6 +12,7 @@ from PIL import Image
 # device = client.devices()[0]
 
 baseline = {}
+orderAction = {}
 
 SCREEN_PATH = 'screen.png'
 
@@ -27,13 +28,14 @@ tap_cords = {
     'skip1': (1190, 12, 1260, 45),
     'exit': (1153, 43, 1264, 93,),
     'start_match': (630, 574, 822, 630),
-    'return_room': (461, 638, 612, 664),
+    'return_room': (684, 629, 800, 662),
     'confirm': (569, 128, 715, 165),
+    # '炫耀一下': (702, 621, 827, 651),
+    '炫耀一下': (477, 619, 550, 651),
     'match_continue': (608, 637, 670, 663),
     # 'match_continue2': (598, 630, 684, 666),
     'recover': (710, 619, 757, 671),
     'pick_hero': (1111, 643, 1234, 678),#选择英雄
-    'check_finished': (394, 343, 450, 388),
     'confirm_hero': (1111, 643, 1234, 678),#确认英雄选择
     'relax': (801, 465, 940, 508),#强制休息
     'confirm1': (554, 635, 722, 693),
@@ -41,8 +43,11 @@ tap_cords = {
     'confirm3': (554, 635, 722, 693),
     '开始匹配': (695, 644, 826, 671),
     '免费加速': (468, 492, 576, 520),
-    '最大化窗口': (250, 299, 276, 367),
     # 'expand_hero': (459, 483,494,602)
+}
+tab_order_action={
+    '最大化窗口': (244, 283, 281, 382),
+    'check_finished': (394, 343, 450, 388),
 }
 
 tap_only_cords = {
@@ -61,7 +66,7 @@ swipe_cords = {
     'skill2':(1121, 397, 85, 100, 400),
 }
 
-threshold = 35 # 两张图片相似度阈值
+threshold = 10 # 两张图片相似度阈值
 ACTIONS = tap_cords.keys()
 
 # 屏幕分辨率
@@ -102,7 +107,7 @@ def start_game():
 
     logging.info("等待1分钟")
 
-    time.sleep(60)
+    time.sleep(20)
 
     logging.info("关闭广告")
     for i in range(5):  # 关闭广告
@@ -148,6 +153,9 @@ def save_crop():
     for key, val in tap_cords.items():
         img = Image.open('img/' + key + '.png')
         img.crop(val).save('img/crop_'+key+'.png')
+    for key, val in tab_order_action.items():
+        img = Image.open('img/' + key + '.png')
+        img.crop(val).save('img/crop_'+key+'.png')
 
 
 def pull_screenshot(resize=False, method=0, save_file=False):
@@ -171,7 +179,9 @@ def pull_screenshot(resize=False, method=0, save_file=False):
         #     with open(SCREEN_PATH, "wb") as fp:
         #         fp.write(result)
     else:
-        os.system('adb shell screencap -p /sdcard/screen.png &&  adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
+        # os.system('adb shell screencap -p /sdcard/screen.png &&  adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
+        os.system('adb shell screencap -p /sdcard/screen.png ')
+        os.system('adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
         img = Image.open(SCREEN_PATH)
 
     if resize and img.size != (base_x, base_y):
@@ -196,22 +206,20 @@ def check_action():
         logging.debug("Find ACTION: {0} , value {1}".format(min_key,crop_frame[min_key] ))
         return min_key
     else:
-        logging.debug("ACTION: {0} , value {1}".format(min_key,crop_frame[min_key] ))
-
-    logging.debug("ACTION: no action")
-
-    return None
+        # logging.debug("ACTION: {0} , value {1}".format(min_key,crop_frame[min_key] ))
+        logging.debug("ACTION: no action")
+        return None
 
 
 def check_single_action(name):
-    if not baseline:
-        for n in ACTIONS:
-            baseline[n] = np.array(Image.open('img/crop_' + n + '.png'))
+    if not orderAction:
+        for n in tab_order_action.keys():
+            orderAction[n] = np.array(Image.open('img/crop_' + n + '.png'))
 
     frame = pull_screenshot()
 
-    res = np.sum(baseline[name] - np.array(frame.crop(tap_cords[name]))) / baseline[name].size
-
+    res = np.sum(orderAction[name] - np.array(frame.crop(tab_order_action[name]))) / orderAction[name].size
+    logging.debug("check: {0} , value {1}".format(name, res))
     if res < threshold:
         return True
 
@@ -243,4 +251,5 @@ def generate_hero_img():
 
 if __name__ == '__main__':
     # generate_hero_img()
-    restart_game()
+    # restart_game()
+    start_game()

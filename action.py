@@ -84,6 +84,10 @@ class ContinueAction(TapAction):
         self.start = time.time()
 
 
+class NoneAction:
+    def execute(self):
+        self.start = time.time()
+
 def tap_sleep(x, y):
     tap_screen(x, y)
 
@@ -151,10 +155,14 @@ def get_action_by_name(name):
             action = ContinueMatchAction(name, tap_cords[name])
         elif name == 'confirm':
             action = ConfirmAction(name, tap_cords[name])
-        elif name == 'return_room':
-            action = ReturnRoomAction(name, tap_cords[name])
+        # elif name == 'return_room':
+        #     action = ReturnRoomAction(name, tap_cords[name])
         elif name == 'relax':
             action = RelaxAction(name, tap_cords[name])
+        # elif name=="炫耀一下":
+        #     action = TapAction(name, (470, 621, 574, 650))
+        elif name== '最大化窗口':
+            action =   NoneAction()
         elif name in swipe_cords.keys():
             action = RandomDirectionSwipeAction(name, swipe_cords[name])
         elif name in tap_only_cords:
