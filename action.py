@@ -140,7 +140,7 @@ class ContinueMatchAction(ContinueAction):
             self.policy.set_finished()
 
         super(ContinueMatchAction, self).execute()
-
+        self.state='ContinueMatch'
         # 第二次点击
         super(ContinueAction, self).execute()
 

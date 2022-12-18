@@ -79,7 +79,7 @@ class RandomPlayPolicy(Policy):
         returnaction = check_action()
 
         # 不在对局中， 没有
-        if returnaction not in ['recover', 'pick_hero', 'confirm_hero']:
+        if returnaction not in ['recover', 'pick_hero', 'confirm_hero','confirm']:
             time.sleep(1.5)
             return returnaction
 
@@ -91,7 +91,7 @@ class RandomPlayPolicy(Policy):
         logging.debug("old state:{}, new state:{}".format(self.state, returnaction))
         self.state = returnaction
 
-        if self.state == 'confirm_hero':
+        if self.state == 'confirm_hero' or self.state == 'confirm':
             return returnaction
 
         if self.state == 'pick_hero':

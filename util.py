@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 import time
 from io import BytesIO
 
@@ -23,15 +24,16 @@ MODE = "COIN"
 tap_cords = {
     'restart': (1000, 635, 1170, 690),
     'continue': (560, 630, 720, 657),
-    'start': (880,  555, 1035, 611),
-    'skip0': (1190, 12, 1260, 45),
-    'skip1': (1190, 12, 1260, 45),
-    'exit': (1153, 43, 1264, 93,),
+    # 'start': (880,  555, 1035, 611),
+    # 'skip0': (1190, 12, 1260, 45),
+    # 'skip1': (1190, 12, 1260, 45),
+    # 'exit': (1153, 43, 1264, 93,),
     'start_match': (630, 574, 822, 630),
     'return_room': (684, 629, 800, 662),
     'confirm': (569, 128, 715, 165),
     # '炫耀一下': (702, 621, 827, 651),
     '炫耀一下': (477, 619, 550, 651),
+    '炫耀一下2': (477, 619, 550, 651),
     'match_continue': (608, 637, 670, 663),
     # 'match_continue2': (598, 630, 684, 666),
     'recover': (710, 619, 757, 671),
@@ -179,16 +181,36 @@ def pull_screenshot(resize=False, method=0, save_file=False):
         #     with open(SCREEN_PATH, "wb") as fp:
         #         fp.write(result)
     else:
-        # os.system('adb shell screencap -p /sdcard/screen.png &&  adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
-        os.system('adb shell screencap -p /sdcard/screen.png ')
-        os.system('adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
-        img = Image.open(SCREEN_PATH)
+        os.system('adb shell screencap -p /sdcard/screen.png &&  adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
+        # os.system('adb shell screencap -p /sdcard/screen.png ')
+        # os.system('adb pull /sdcard/screen.png {}'.format(SCREEN_PATH))
+        img = Image.open('./screen.png')
 
+        # byteImage = cmd('adb shell screencap -p').replace(b'\r\n', b'\n').replace(b'\r\n', b'\n')
+        # img = Image.open(np.asarray(bytearray(byteImage), dtype=np.uint8))
+        # if save_file:
+        #     with open(SCREEN_PATH, "wb") as fp:
+        #         fp.write(np.asarray(bytearray(byteImage), dtype=np.uint8))
+    time.sleep(0.8)
     if resize and img.size != (base_x, base_y):
         return img.resize((base_x, base_y))
     else:
         return img
 
+
+# 执行命令
+def cmd(cmdStr: str):
+    cmds = cmdStr.split(' ')
+    proc = subprocess.Popen(
+        cmds,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    stdout, stderr = proc.communicate()
+    # returncode 代表执行cmd命令报错
+    if proc.returncode > 0:
+        raise Exception(proc.returncode, stderr)
 
 def check_action():
     if not baseline:
@@ -227,7 +249,7 @@ def check_single_action(name):
 
 
 def generate_hero_img():
-    frame = pull_screenshot(save_file=True)
+    frame = pull_screenshot(save_file=False)
     y = 72
     h = 138
     x = 10
