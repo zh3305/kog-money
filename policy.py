@@ -42,12 +42,12 @@ class RandomPlayPolicy(Policy):
 
     def load_finished(self):
         if os.path.exists(self.SAVE_PATH):
-            with open(self.SAVE_PATH, 'r') as f:
+            with open(self.SAVE_PATH, 'r', encoding='utf-8') as f:
                 self.finished = json.load(f)
 
     def load_hero(self):
         if os.path.exists(self.HERO_PATH):
-            with open(self.HERO_PATH, 'r') as f:
+            with open(self.HERO_PATH, 'r', encoding='utf-8') as f:
                 self.hero_list = json.load(f)
 
     @staticmethod
@@ -96,10 +96,14 @@ class RandomPlayPolicy(Policy):
 
         if self.state == 'pick_hero':
             hero = self._random_hero()
+            now = time.time()
             logging.debug('try to find hero {}'.format(hero))
             while not chose_hero(hero):
                 logging.debug('find hero {} failed, retry'.format(hero))
                 hero = self._random_hero()
+                if  time.time()-now > 60:
+                    logging.debug('选择英雄超时!')
+                    return returnaction
                 continue
                 # chose_hero(hero, reverse=True)
                 # logging.debug('try to find hero {}'.format(hero))
